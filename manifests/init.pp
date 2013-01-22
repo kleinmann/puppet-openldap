@@ -38,7 +38,7 @@
 class ldap(
   $client   = false,
   $server   = false,
-  $ssl      = false
+  $ssl      = false,
   $ssl_ca   = '',
   $ssl_cert = '',
   $ssl_key  = '',
@@ -49,6 +49,10 @@ class ldap(
   $servers  = [],
 ) {
   include ldap::params
+
+  package { $ldap::params::openldap_common_packages:
+    ensure => present,
+  }
 
   # Define Client Specific Information
   if $client == true {

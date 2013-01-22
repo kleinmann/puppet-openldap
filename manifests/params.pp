@@ -36,8 +36,9 @@ class ldap::params {
       case $::lsbdistcodename {
         # quantal
         default: {
-          $openldap_packages = ['slapd', 'ldap-utils']
-          $openldap_client_packages = ['libnss-ldap', 'ldap-utils']
+          $openldap_packages = ['slapd']
+          $openldap_client_packages = ['libnss-ldap']
+          $openldap_common_packages = ['ldap-utils']
         }
       }
     }

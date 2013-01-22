@@ -19,25 +19,18 @@ class ldap::client(
   $basedn,
   $servers,
 ) {
-  Class {
-    ensure => $ensure,
+  class { 'ldap::client::package':
+    ensure => present,
   }
 
-  class { 'ldap::client::package': }
-
   class { 'ldap::client::base':
-    ssl     => $ssl,
     require => Class['ldap::client::package'],
     notify  => Class['ldap::client::config'],
   }
 
   class { 'ldap::client::config':
     ssl     => $ssl,
-    basedn => $basedn,
+    basedn  => $basedn,
     servers => $servers,
-    require => Class['ldap::client::base'],
-    notify  => Class['ldap::client::service'],
   }
-
-  class { 'ldap::client::service': }
 }

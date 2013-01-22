@@ -1,7 +1,7 @@
 # Default location of the slapd.conf file or slapd.d cn=config directory. If
 # empty, use the compiled-in default (/etc/ldap/slapd.d with a fallback to
 # /etc/ldap/slapd.conf).
-SLAPD_CONF="<%= ldap::params::lp_openldap_conf_dir %>/slapd.conf"
+SLAPD_CONF="<%= scope.lookupvar('ldap::params::lp_openldap_conf_dir') %>/slapd.conf"
 
 # System account to run the slapd server under. If empty the server
 # will run as root.

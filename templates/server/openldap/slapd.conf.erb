@@ -6,36 +6,36 @@
 
 # Features to permit
 #allow bind_v2
-<%- if $ldap::params::lp_openldap_allow_ldapv2 == 'true' %>
+<%- if scope.lookupvar('ldap::params::lp_openldap_allow_ldapv2') == 'true' %>
 allow_bind_v2 
 <%- end %>
 
 # Schema and objectClass definitions
-include         <%= $ldap::params::lp_openldap_conf_dir %>/schema/core.schema
-include         <%= $ldap::params::lp_openldap_conf_dir %>/schema/cosine.schema
-include         <%= $ldap::params::lp_openldap_conf_dir %>/schema/nis.schema
-include         <%= $ldap::params::lp_openldap_conf_dir %>/schema/inetorgperson.schema
+include         <%= scope.lookupvar('ldap::params::lp_openldap_conf_dir') %>/schema/core.schema
+include         <%= scope.lookupvar('ldap::params::lp_openldap_conf_dir') %>/schema/cosine.schema
+include         <%= scope.lookupvar('ldap::params::lp_openldap_conf_dir') %>/schema/nis.schema
+include         <%= scope.lookupvar('ldap::params::lp_openldap_conf_dir') %>/schema/inetorgperson.schema
 
 # Where the pid file is put. The init.d script
 # will not stop the server if you change this.
-pidfile         <%= $ldap::params::lp_openldap_run_dir %>/slapd.pid
+pidfile         <%= scope.lookupvar('ldap::params::lp_openldap_run_dir') %>/slapd.pid
 
 # List of arguments that were passed to the server
-argsfile        <%= $ldap::params::lp_openldap_run_dir %>/slapd.args
+argsfile        <%= scope.lookupvar('ldap::params::lp_openldap_run_dir') %>/slapd.args
 
 # Read slapd.conf(5) for possible values
-loglevel        <%= $ldap::params::lp_openldap_loglevel %>
+loglevel        <%= scope.lookupvar('ldap::params::lp_openldap_loglevel') %>
 
 # Where the dynamically loaded modules are stored
-modulepath	<%= $ldap::params::lp_openldap_modulepath %>
+modulepath	<%= scope.lookupvar('ldap::params::lp_openldap_modulepath') %>
 moduleload	back_@BACKEND@
 
 # The maximum number of entries that is returned for a search operation
-sizelimit <%= $ldap::params::lp_openldap_sizelimit %>
+sizelimit <%= scope.lookupvar('ldap::params::lp_openldap_sizelimit') %>
 
 # The tool-threads parameter sets the actual amount of cpu's that is used
 # for indexing.
-tool-threads <%= $ldap::params::lp_openldap_tool_threads %>
+tool-threads <%= scope.lookupvar('ldap::params::lp_openldap_tool_threads') %>
 
 #######################################################################
 # Specific Backend Directives for @BACKEND@:
@@ -63,7 +63,7 @@ suffix          "@SUFFIX@"
 # rootdn          "cn=admin,@SUFFIX@"
 
 # Where the database file are physically stored for database #1
-directory       "<%= $ldap::params::lp_openldap_var_dir %>"
+directory       "<%= scope.lookupvar('ldap::params::lp_openldap_var_dir') %>"
 
 # The dbconfig settings are used to generate a DB_CONFIG file the first
 # time slapd starts.  They do NOT override existing an existing DB_CONFIG

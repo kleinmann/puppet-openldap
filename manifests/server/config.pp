@@ -41,6 +41,12 @@ class ldap::server::config (
     content => template('ldap/server/openldap/slapd.conf.erb')
   }
 
+  file { "${ldap::params::lp_openldap_conf_dir}/slapd.conf":
+    ensure  => file,
+    group   => $ldap::params::lp_daemon_user,
+    content => template('ldap/server/openldap/slapd.conf.erb')
+  }
+
   file {"${ldap::params::lp_openldap_conf_dir}":
     ensure => directory,
     mode   => '0755',
@@ -49,7 +55,7 @@ class ldap::server::config (
   }
 
   ## Setup Initial OpenLDAP Database
-  file { "${ldap::params::lp_openldap_var_dir}/${name}/DB_CONFIG":
+  file { "${ldap::params::lp_openldap_var_dir}/DB_CONFIG":
     ensure  => $ensure,
     mode    => '0660',
     content => template('ldap/server/openldap/DB_CONFIG.erb'),
@@ -59,11 +65,11 @@ class ldap::server::config (
     ensure  => $ensure,
     owner   => $ldap::params::lp_daemon_user,
     content => template('ldap/server/openldap/base.ldif.erb'),
-    notify  => Exec["bootstrap-ldap-${name}"],
+    notify  => Exec["bootstrap-ldap"],
   }
 
   exec { "bootstrap-ldap":
-    command   => "ldapadd -x -D cn=admin,${basedn} -w ${rootpw} -f ${ldap::params::lp_openldap_var_dir}/base.ldif",
+    command   => "ldapadd -x -D ${rootdn},${basedn} -w ${rootpw} -f ${ldap::params::lp_openldap_var_dir}/base.ldif",
     path      => '/bin:/sbin:/usr/bin:/usr/sbin',
     user      =>  $ldap::params::lp_daemon_user,
     group     =>  $ldap::params::lp_daemon_group,
