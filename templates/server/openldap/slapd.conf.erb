@@ -28,7 +28,7 @@ loglevel        <%= scope.lookupvar('ldap::params::lp_openldap_loglevel') %>
 
 # Where the dynamically loaded modules are stored
 modulepath	<%= scope.lookupvar('ldap::params::lp_openldap_modulepath') %>
-moduleload	back_@BACKEND@
+moduleload	back_hdb
 
 # The maximum number of entries that is returned for a search operation
 sizelimit <%= scope.lookupvar('ldap::params::lp_openldap_sizelimit') %>
@@ -38,10 +38,10 @@ sizelimit <%= scope.lookupvar('ldap::params::lp_openldap_sizelimit') %>
 tool-threads <%= scope.lookupvar('ldap::params::lp_openldap_tool_threads') %>
 
 #######################################################################
-# Specific Backend Directives for @BACKEND@:
+# Specific Backend Directives for hdb:
 # Backend specific directives apply to this backend until another
 # 'backend' directive occurs
-backend		@BACKEND@
+backend		hdb
 
 #######################################################################
 # Specific Backend Directives for 'other':
@@ -49,19 +49,30 @@ backend		@BACKEND@
 # 'backend' directive occurs
 #backend		<other>
 
+database config
+# NOTE: the suffix is hardcoded as cn=config and 
+# MUST not have a suffix directive
+# normal rules apply - rootdn can be anything you want
+# but MUST be under cn=config
+rootdn "cn=admin,cn=config"
+# use any of the supported password formats e.g. {SSHA} etc
+# or plaintext as shown
+rootpw "<%= rootpw %>"
+
+
 #######################################################################
-# Specific Directives for database #1, of type @BACKEND@:
+# Specific Directives for database #1, of type hdb:
 # Database specific directives apply to this databasse until another
 # 'database' directive occurs
-database        @BACKEND@
+database        hdb
 
 # The base of your directory in database #1
-suffix          "@SUFFIX@"
+suffix          "<%= basedn %>"
 
 # rootdn directive for specifying a superuser on the database. This is needed
 # for syncrepl.
-# rootdn          "cn=admin,@SUFFIX@"
-
+rootdn          "cn=admin,<%= basedn %>"
+rootpw          "<%= rootpw %>"
 # Where the database file are physically stored for database #1
 directory       "<%= scope.lookupvar('ldap::params::lp_openldap_var_dir') %>"
 
@@ -107,7 +118,7 @@ TLSCertificateKeyFile <%= ssl_key %>
 # admin entry below
 # These access lines apply to database #1 only
 access to attrs=userPassword,shadowLastChange
-        by dn="@ADMIN@" write
+        by dn="<%= rootdn %>,<%= basedn %>" write
         by anonymous auth
         by self write
         by * none
@@ -126,17 +137,17 @@ access to dn.base="" by * read
 # The admin dn has full write access, everyone else
 # can read everything.
 access to *
-        by dn="@ADMIN@" write
+        by dn="<%= rootdn %>,<%= basedn %>" write
         by * read
 
 # For Netscape Roaming support, each user gets a roaming
 # profile for which they have write access to
 #access to dn=".*,ou=Roaming,o=morsnet"
-#        by dn="@ADMIN@" write
+#        by dn="<%= rootdn %>,<%= basedn %>" write
 #        by dnattr=owner write
 
 #######################################################################
-# Specific Directives for database #2, of type 'other' (can be @BACKEND@ too):
+# Specific Directives for database #2, of type 'other' (can be hdb too):
 # Database specific directives apply to this databasse until another
 # 'database' directive occurs
 #database        <other>

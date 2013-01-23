@@ -55,6 +55,24 @@ class ldap::server::config (
   }
 
   ## Setup Initial OpenLDAP Database
+  exec { 'convert slapd.conf to slapd.d':
+    command   => "slaptest -f ${ldap::params::lp_openldap_conf_dir}/slapd.conf -F ${ldap::params::lp_openldap_conf_dir}/slapd.d",
+    path      => '/bin:/sbin/:/usr/bin:/usr/sbin',
+    user      => 'root',
+    group     => 'root',
+    logoutput => false,
+    creates   => '/.slapd_config_initialized',
+    require   => File["${ldap::params::lp_openldap_conf_dir}/slapd.conf"],
+    notify    => File['/.slapd_config_initialized'],
+  }
+
+  file { '/.slapd_config_initialized':
+    ensure => present,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0600',
+  }
+
   file { "${ldap::params::lp_openldap_var_dir}/DB_CONFIG":
     ensure  => $ensure,
     mode    => '0660',
@@ -71,10 +89,11 @@ class ldap::server::config (
   exec { "bootstrap-ldap":
     command   => "ldapadd -x -D ${rootdn},${basedn} -w ${rootpw} -f ${ldap::params::lp_openldap_var_dir}/base.ldif",
     path      => '/bin:/sbin:/usr/bin:/usr/sbin',
-    user      =>  $ldap::params::lp_daemon_user,
-    group     =>  $ldap::params::lp_daemon_group,
+    user      => $ldap::params::lp_daemon_user,
+    group     => $ldap::params::lp_daemon_group,
     logoutput => true,
     creates   => "${ldap::params::lp_openldap_var_dir}/id2entry.bdb",
     before    => Class['ldap::server::service'],
+    require   => File['/.slapd_config_initialized'],
   }
 }
